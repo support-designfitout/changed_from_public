@@ -102,6 +102,7 @@ public class RequestParser {
         url = url.substring(qpos + 1);
         String delimiter = "";
         for (String paramEntry : url.split("&")) {
+            if (paramEntry.isEmpty()) continue;
             sb.append(delimiter);
             int epos = paramEntry.indexOf("=");
             if (epos == -1) {
