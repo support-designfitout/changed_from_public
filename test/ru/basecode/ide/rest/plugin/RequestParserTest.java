@@ -41,4 +41,12 @@ public class RequestParserTest extends Assert{
         assertEquals("?param=%D1%8B%D1%91", RequestParser.encode("?param=ыё"));
     }
 
+    @Test
+    public void shouldHandleLeadingAmpersandInQueryString() {
+        assertEquals("https://cloudflare.com/whois?domain=designfitout.com",
+                RequestParser.encode("https://cloudflare.com/whois?&domain=designfitout.com"));
+        assertEquals("http://www.site.com?param=value",
+                RequestParser.encode("http://www.site.com?&param=value"));
+    }
+
 }
