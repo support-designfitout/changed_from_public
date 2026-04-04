@@ -2,6 +2,7 @@ package ru.basecode.ide.rest.plugin;
 
 import com.google.common.net.UrlEscapers;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.basecode.ide.rest.plugin.psi.*;
 
 import java.util.ArrayList;
@@ -40,7 +41,8 @@ public class RequestParser {
         String url = getUrl(request);
         String body = getBody(request);
         List<Request.Header> headers = getHeaders(request);
-        return new Request(method, url, headers, body);
+        Request.Params params = getClientParams(request);
+        return new Request(method, url, headers, body, params);
     }
 
     private static List<Request.Header> getHeaders(RestRequest request) {
@@ -90,6 +92,40 @@ public class RequestParser {
             return encode(sb.toString());
         }
         throw new IllegalStateException("");
+    }
+
+    /**
+     * Parses client options from the {@code --} lines before the request URL.
+     * Supports {@code -- timeout = N} to set socket/connect timeout in milliseconds.
+     * Returns {@code null} when no recognised options are present or timeout is not positive.
+     * The first valid {@code -- timeout} value wins if multiple are present.
+     */
+    @Nullable
+    private static Request.Params getClientParams(RestRequest request) {
+        RestOptions options = request.getOptions();
+        if (options == null) {
+            return null;
+        }
+        int timeout = 0;
+        for (RestEOption option : options.getEOptionList()) {
+            String text = option.getText();
+            if (text.startsWith("--")) {
+                String content = text.substring(2).trim();
+                int eqPos = content.indexOf('=');
+                if (eqPos >= 0) {
+                    String key = content.substring(0, eqPos).trim();
+                    String value = content.substring(eqPos + 1).trim();
+                    if ("timeout".equals(key)) {
+                        try {
+                            timeout = Integer.parseInt(value);
+                            break;
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                }
+            }
+        }
+        return timeout > 0 ? new Request.Params(timeout) : null;
     }
 
     static String encode(String url) {

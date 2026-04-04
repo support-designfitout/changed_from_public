@@ -5,6 +5,7 @@ import com.intellij.openapi.util.UserDataHolder;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -72,6 +73,14 @@ public class RequestExecutor {
         state = State.RUNNING;
         try {
             httpRequest = Requests.createHttpRequest(request);
+            Request.Params params = request.getParams();
+            if (params != null && params.getTimeout() > 0) {
+                RequestConfig config = RequestConfig.custom()
+                        .setSocketTimeout(params.getTimeout())
+                        .setConnectTimeout(params.getTimeout())
+                        .build();
+                httpRequest.setConfig(config);
+            }
             HttpResponse response = httpClient.execute(httpRequest);
             return new Response(
                     response.getStatusLine().toString(),
