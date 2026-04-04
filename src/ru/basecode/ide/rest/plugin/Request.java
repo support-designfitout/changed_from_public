@@ -100,12 +100,18 @@ public class Request {
     private final String url;
     private final List<Header> headers;
     private final String body;
+    private final Params params;
 
     public Request(Method method, String url, List<Header> headers, String body) {
+        this(method, url, headers, body, null);
+    }
+
+    public Request(Method method, String url, List<Header> headers, String body, Params params) {
         this.method = method;
         this.url = url;
         this.headers = headers;
         this.body = body;
+        this.params = params;
     }
 
     public Method getMethod() {
@@ -124,6 +130,10 @@ public class Request {
         return body;
     }
 
+    public Params getParams() {
+        return params;
+    }
+
     @Override
     public String toString() {
         return "Request{" +
@@ -131,6 +141,7 @@ public class Request {
                 ", url='" + url + '\'' +
                 ", headers=" + headers +
                 ", body='" + body + '\'' +
+                ", params=" + params +
                 '}';
     }
 
@@ -144,7 +155,8 @@ public class Request {
         if (method != request.method) return false;
         if (url != null ? !url.equals(request.url) : request.url != null) return false;
         if (headers != null ? !headers.equals(request.headers) : request.headers != null) return false;
-        return body != null ? body.equals(request.body) : request.body == null;
+        if (body != null ? !body.equals(request.body) : request.body != null) return false;
+        return params != null ? params.equals(request.params) : request.params == null;
 
     }
 
@@ -154,6 +166,7 @@ public class Request {
         result = 31 * result + (url != null ? url.hashCode() : 0);
         result = 31 * result + (headers != null ? headers.hashCode() : 0);
         result = 31 * result + (body != null ? body.hashCode() : 0);
+        result = 31 * result + (params != null ? params.hashCode() : 0);
         return result;
     }
 }

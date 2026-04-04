@@ -31,7 +31,9 @@ e_bad ::= BAD_CHARACTER
 
 request ::= ws* comments? options? comments? e_method? ws* comments? e_url ws* comments? params? comments? headers? comments? request_body?
 
-options ::= COMMENT? OPTION {OPTION|COMMENT|ws}*
+options ::= COMMENT? e_option {e_option|COMMENT|ws}*
+
+e_option ::= OPTION
 
 e_param ::= PARAM
 
